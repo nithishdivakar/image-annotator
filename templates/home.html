@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+
+{% block more_head %}
+<style>
+  {% for clr in colors %}
+    .color-class-type1-{{loop.index0}} {
+       background-color: {{ clr }};
+       border-color: {{ clr }}; 
+    }
+    .color-class-type2-{{loop.index0}} {
+       color: {{ clr }};
+       border-color: {{ clr }}; 
+    }
+    .border-color-{{loop.index0}}{
+       border-color: {{ clr }}; 
+    }
+    
+    .color-class-type2-{{loop.index0}}:active,
+    .color-class-type2-{{loop.index0}}:hover {
+       background-color: {{ clr }} !important;
+       border-color: {{ clr }} !important; 
+       color:#fff !important;
+    } 
+  {% endfor %}
+</style>
+{% endblock %}
+
+{% macro image_tab(image_id, class_names) -%}
+<div class="col-md-4" id={{image_id}}>
+  <div class="thumbnail p-1 mb-2">
+    <!--<img src="{{ url_for('static',filename=image_name) }}" class="img-responsive" alt="Cinque Terre" style="width:100%">-->
+    <img src="/get_image/{{image_id}}" class="img-responsive" alt="Cinque Terre" style="width:100%">
+        <div class="caption pt-1 pb-1">
+          {% for class_name in class_names %}
+            <button class="labeller btn btn-outline-success btn-sm p-1 color-class-type2-{{loop.index0}}" id="{{image_id}}" data-id="{{image_id}}" data-label="{{class_name}}">
+              {{ class_name }}
+            </button>
+          {% endfor %}
+        </div>
+  </div>
+</div>
+{%- endmacro %}
+
+
+{% block content %}
+<div class="container">
+<!--
+<div class="row p-3">
+  {% for class_name in class_names %}
+    <button class="btn btn-success color-class-type1-{{loop.index0}}" >{{ class_name }}</button>
+  {% endfor %} 
+</div>
+-->
+
+<div class="row">
+  {% for image_id in images %}
+     {{ image_tab(image_id = image_id, class_names = class_names ) }}
+  {% endfor %}
+</div>
+</div>
+
+{% endblock %}
+
+
+{% block tail %}
+<script>
+$('.labeller').click(function() { 
+  var image_id = $(this).attr("data-id");
+  var label = $(this).attr("data-label");
+    
+        $.ajax({
+            url: '/label',
+            type: 'POST',
+            data: {'image_id':image_id,'label':label}, // An object with the key 'submit' and value 'true;
+            success: function (result) {
+              $('div#'+image_id).fadeOut("slow", function(){
+                $('div#'+image_id).remove()
+              })
+            }
+        });  
+
+});
+</script>
+
+{% endblock %}

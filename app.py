@@ -85,6 +85,14 @@ def image_serve(image_id):
     return send_file(
         IMAGES[image_id], attachment_filename=image_id + "." + ext)
 
+@app.route('/get_stats', methods=['GET'])
+def stats():
+  ANNOT = {}
+  for class_name in CLASS_NAMES:
+    L = glob.glob(os.path.join("labelled", class_name)+"/*.png")
+    ANNOT[class_name] = len(L)
+  return jsonify(ANNOT)
+
 
 if __name__ == '__main__':
   import argparse
